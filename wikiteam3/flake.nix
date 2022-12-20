@@ -29,10 +29,12 @@
           pname = "dumpgenerator";
           version = (builtins.fromTOML (builtins.readFile "${wikiteam3}/pyproject.toml")).tool.poetry.version;
 
-          src = "${wikiteam3}/dist/wikiteam3-3.0.0-py3-none-any.whl";
-          format = "wheel";
+          src = "${wikiteam3}";
+          format = "pyproject";
 
-          pipInstallFlags = [ "--no-deps" ]; # Ignore argparse because it exists in stdlib
+          patches = [
+            ./remove-argparse.patch
+          ];
 
           requirements =
             let
@@ -41,8 +43,11 @@
               mainLines = lib.filter (x: !(lib.strings.hasPrefix " " x)) rawLines;
               mainLineHeads = map (x: lib.head (lib.splitString " " x)) mainLines;
               filteredMainLineHeads = lib.filter (x: !(lib.strings.hasPrefix "argparse==" x)) mainLineHeads;
+              extraDependencies = [
+                "poetry"
+              ];
             in
-              lib.concatStringsSep "\n" filteredMainLineHeads;
+              lib.concatStringsSep "\n" (filteredMainLineHeads ++ extraDependencies);
         };
       in
       rec {
