@@ -27,7 +27,7 @@
 
         pythonPkg = mach-nix.lib."${system}".buildPythonApplication {
           pname = "dumpgenerator";
-          version = "3.0.0";
+          version = (builtins.fromTOML (builtins.readFile "${wikiteam3}/pyproject.toml")).tool.poetry.version;
 
           src = "${wikiteam3}/dist/wikiteam3-3.0.0-py3-none-any.whl";
           format = "wheel";
