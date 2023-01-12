@@ -12,6 +12,7 @@
 
   outputs = { self, nixpkgs, flake-utils, dream2nix, wikiteam3 }: 
     let
+      lib = nixpkgs.lib;
       systems = [ "x86_64-linux" "aarch64-linux" ];
     in
     flake-utils.lib.eachSystem systems (system:
@@ -29,10 +30,30 @@
             source = cleanSource;
             projects = ./projects.toml;
           });
+        appNames = [ "dumpgenerator" "launcher" "uploader" ];
+        rawPackage = underlying.packages."${system}".default;
+        wrappedPackage = pkgs.linkFarm "wikiteam3-wrapped" (map (app: { name = "bin/wikiteam-${app}"; path = "${rawPackage}/bin/${app}"; }) appNames);
       in
-      (u:
-      builtins.break
-      {
-      }) underlying
-    );
+      rec {
+        packages = {
+          dumpgenerator = wrappedPackage;
+          default = packages.dumpgenerator;
+        };
+
+        apps =
+          let
+            base = lib.genAttrs appNames (app: {
+              type = "app";
+              program = "${packages.dumpgenerator}/bin/wikiteam-${app}";
+            });
+          in
+          base // {
+            default = base.dumpgenerator;
+            dreamResolveImpure = {
+              type = "app";
+              program = "${underlying.packages."${system}".resolveImpure}/bin/resolve";
+            };
+          };
+      }
+   );
 }
