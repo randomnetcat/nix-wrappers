@@ -14,7 +14,6 @@
     "pythonAttr": "python310",
     "sourceFormats": {
       "PyMySQL": "wheel",
-      "argparse": "wheel",
       "certifi": "wheel",
       "charset_normalizer": "wheel",
       "contextlib2": "wheel",
@@ -47,13 +46,6 @@
         "hash": "sha256-Qfw6DFAT1fA5Y5RCMhGFUy4+LIkkaHq+ZTfeFX1ANkE=",
         "type": "http",
         "url": "https://files.pythonhosted.org/packages/py3/P/PyMySQL/PyMySQL-1.0.2-py3-none-any.whl"
-      }
-    },
-    "argparse": {
-      "1.4.0": {
-        "hash": "sha256-wxZH7baf09RlqEfqMVfTe+0flfGXYLEaR6qRwEtmYxQ=",
-        "type": "http",
-        "url": "https://files.pythonhosted.org/packages/2.7/a/argparse/argparse-1.4.0-py2.py3-none-any.whl"
       }
     },
     "certifi": {
@@ -190,10 +182,10 @@
       }
     },
     "setuptools": {
-      "65.6.3": {
-        "hash": "sha256-V/byK95OBCl4vNUBdv2zgdfCGp76QEEgIojTc3oMalQ=",
+      "65.7.0": {
+        "hash": "sha256-irTx2/K0pl9+7FrQxiDoTDQRGmjTNJgzSUuQiCEiFN0=",
         "type": "http",
-        "url": "https://files.pythonhosted.org/packages/py3/s/setuptools/setuptools-65.6.3-py3-none-any.whl"
+        "url": "https://files.pythonhosted.org/packages/py3/s/setuptools/setuptools-65.7.0-py3-none-any.whl"
       }
     },
     "six": {
@@ -211,10 +203,10 @@
       }
     },
     "urllib3": {
-      "1.26.13": {
-        "hash": "sha256-R8wF2ZqqCcnnLtWAm2DnujVOZLWcnBc6wwGGQti7Qfw=",
+      "1.26.14": {
+        "hash": "sha256-de3NwvfYWxNxJKbDyfw5M83qoS7LmmqVnyJ5eg/sp+E=",
         "type": "http",
-        "url": "https://files.pythonhosted.org/packages/py2.py3/u/urllib3/urllib3-1.26.13-py2.py3-none-any.whl"
+        "url": "https://files.pythonhosted.org/packages/py2.py3/u/urllib3/urllib3-1.26.14-py2.py3-none-any.whl"
       }
     },
     "wikitools3": {
