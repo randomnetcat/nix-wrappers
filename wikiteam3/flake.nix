@@ -1,13 +1,8 @@
 {
-  description = "Application packaged using poetry2nix";
-
-  inputs.flake-utils.url = "github:numtide/flake-utils";
-
-  inputs.mach-nix = {
-    url = "github:DavHau/mach-nix";
-
-    # Disabled because dependency information repository auto-update is broken and thus outdated, causing an error in mach-nix.
-    # inputs.nixpkgs.follows = "nixpkgs";
+  inputs.dream2nix = {
+    url = "github:nix-community/dream2nix";
+    inputs.nixpkgs.follows = "nixpkgs";
+    inputs.nix-pypi-fetcher.url = "github:DavHau/nix-pypi-fetcher-2";
   };
 
   inputs.wikiteam3 = {
@@ -15,55 +10,29 @@
     flake = false;
   };
 
-  outputs = { self, nixpkgs, flake-utils, mach-nix, wikiteam3 }:
-    (flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils, dream2nix, wikiteam3 }: 
+    let
+      systems = [ "x86_64-linux" "aarch64-linux" ];
+    in
+    flake-utils.lib.eachSystem systems (system:
       let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [ self.overlay ];
-        };
-
-        lib = nixpkgs.lib;
-
-        pythonPkg = mach-nix.lib."${system}".buildPythonApplication {
-          pname = "dumpgenerator";
-          version = (builtins.fromTOML (builtins.readFile "${wikiteam3}/pyproject.toml")).tool.poetry.version;
-
-          src = "${wikiteam3}";
-          format = "pyproject";
-
-          patches = [
-            ./remove-argparse.patch
-          ];
-
-          requirements =
-            let
-              rawText = builtins.readFile "${wikiteam3}/requirements.txt";
-              rawLines = lib.splitString "\n" rawText;
-              mainLines = lib.filter (x: !(lib.strings.hasPrefix " " x)) rawLines;
-              mainLineHeads = map (x: lib.head (lib.splitString " " x)) mainLines;
-              filteredMainLineHeads = lib.filter (x: !(lib.strings.hasPrefix "argparse==" x)) mainLineHeads;
-              extraDependencies = [
-                "poetry"
-              ];
-            in
-              lib.concatStringsSep "\n" (filteredMainLineHeads ++ extraDependencies);
-        };
+        pkgs = nixpkgs.legacyPackages."${system}";
+        cleanSource = pkgs.runCommandLocal "wikiteam3-clean" { ORIG_SOURCE = wikiteam3; } ''
+          echo $ORIG_SOURCE and $out
+          cp -rT --no-preserve=mode,ownership -- "$ORIG_SOURCE" "$out"
+          rm -r -- "$out/dist"
+        '';
+        underlying =
+          (dream2nix.lib.makeFlakeOutputs {
+            inherit systems;
+            config.projectRoot = ./.;
+            source = cleanSource;
+            projects = ./projects.toml;
+          });
       in
-      rec {
-        packages = {
-          dumpgenerator = pythonPkg;
-
-          default = packages.dumpgenerator;
-        };
-
-        apps = {
-          dumpgenerator = {
-            type = "app";
-            program = "${packages.dumpgenerator}/bin/dumpgenerator";
-          };
-
-          default = apps.dumpgenerator;
-        };
-      }));
+      (u:
+      builtins.break
+      {
+      }) underlying
+    );
 }
