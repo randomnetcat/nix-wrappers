@@ -2,7 +2,7 @@
   inputs.dream2nix = {
     url = "github:nix-community/dream2nix";
     inputs.nixpkgs.follows = "nixpkgs";
-    inputs.nix-pypi-fetcher.url = "github:DavHau/nix-pypi-fetcher-2";
+    inputs.nix-pypi-fetcher.url = "github:DavHau/nix-pypi-fetcher-2"; # Original version of the repo is outdated and no longer updated
   };
 
   inputs.wikiteam3 = {
