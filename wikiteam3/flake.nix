@@ -18,15 +18,26 @@
     flake-utils.lib.eachSystem systems (system:
       let
         pkgs = nixpkgs.legacyPackages."${system}";
+
         cleanSource = pkgs.runCommandLocal "wikiteam3-clean" { ORIG_SOURCE = wikiteam3; } ''
-          echo $ORIG_SOURCE and $out
           cp -rT --no-preserve=mode,ownership -- "$ORIG_SOURCE" "$out"
           rm -r -- "$out/dist"
         '';
+
+        # I hate this so much. But I couldn't get just setting config.packagesDir for some reason
+        # and I don't care enough to dig into dream2nix to figure out why. So! Just create build
+        # a new directory that links to the correct lockfile based on the system we're building
+        # for. We have to do this because lxml resolves to a different file on different architectures.
+        # AAAAAAAAA it's 4:30am good night? morning? why
+        cleanPackage = pkgs.runCommandLocal "dream2nix-input" { ORIG_SOURCE = ./.; NIX_SYSTEM = system; } ''
+          mkdir -- "$out"
+          ln -sT -- "''${ORIG_SOURCE}/dream2nix-packages-''${NIX_SYSTEM}" "$out/dream2nix-packages"
+        '';
+
         underlying =
           (dream2nix.lib.makeFlakeOutputs {
             inherit systems;
-            config.projectRoot = ./.;
+            config.projectRoot = cleanPackage;
             source = cleanSource;
             projects = ./projects.toml;
           });
