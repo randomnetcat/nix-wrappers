@@ -91,11 +91,11 @@
         "pre-commit-hooks": "pre-commit-hooks"
       },
       "locked": {
-        "lastModified": 1672661134,
-        "narHash": "sha256-WqBUyKeiv+jI11ug+qP0OnZ4nngK6eBRVTGHgdzEGvc=",
+        "lastModified": 1673444666,
+        "narHash": "sha256-5YE8MyYSRRT1bA78ZCSZCCawch3/nV+WWEddkkN8cbY=",
         "owner": "nix-community",
         "repo": "dream2nix",
-        "rev": "9f6911c78dcb0832f7fcc955e847db1a5a9ce29a",
+        "rev": "898440d4f576b89018aeeb6b0d8c3dd6baa79917",
         "type": "github"
       },
       "original": {
@@ -255,11 +255,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1670597555,
-        "narHash": "sha256-/k939P2S2246G6K5fyvC0U2IWvULhb4ZJg9K7ZxsX+k=",
+        "lastModified": 1672953546,
+        "narHash": "sha256-oz757DnJ1ITvwyTovuwG3l9cX6j9j6/DH9eH+cXFJmc=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "2dea0f4c2d6e4603f54b2c56c22367e77869490c",
+        "rev": "a518c77148585023ff56022f09c4b2c418a51ef5",
         "type": "github"
       },
       "original": {
@@ -355,11 +355,11 @@
     "wikiteam3": {
       "flake": false,
       "locked": {
-        "lastModified": 1670693055,
-        "narHash": "sha256-T7/bYgpHkP9FNY4e2dcdfQ+XSs5ls2/ha6PpnkxBIA4=",
+        "lastModified": 1673210440,
+        "narHash": "sha256-x1Lm2i1x170CFnDziOzzzR7tPQPuP7GQGvwxJMKMZyc=",
         "owner": "elsiehupp",
         "repo": "wikiteam3",
-        "rev": "b0bf0f34b893c3a879551f4b1b6e758613de08f9",
+        "rev": "98518297cc0ae09a58266b5acf6f040d99743d4d",
         "type": "github"
       },
       "original": {
