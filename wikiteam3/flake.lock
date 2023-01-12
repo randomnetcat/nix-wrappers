@@ -240,11 +240,11 @@
     "nix-pypi-fetcher": {
       "flake": false,
       "locked": {
-        "lastModified": 1673501546,
-        "narHash": "sha256-+zp34oClQY/lk4qQpBLAggI7TEhq++6e/prwp4i3hCM=",
+        "lastModified": 1673544344,
+        "narHash": "sha256-Y7g8CgLImmouMx1kRfQo2SqT08pIE2vezh2PqsLw2Y0=",
         "owner": "DavHau",
         "repo": "nix-pypi-fetcher-2",
-        "rev": "0a354b12472a0187423f8ed3a5b04cb93d8922e6",
+        "rev": "461ee45bc4cbe8396347e46a5c14418855d01605",
         "type": "github"
       },
       "original": {
@@ -355,11 +355,11 @@
     "wikiteam3": {
       "flake": false,
       "locked": {
-        "lastModified": 1673210440,
-        "narHash": "sha256-x1Lm2i1x170CFnDziOzzzR7tPQPuP7GQGvwxJMKMZyc=",
+        "lastModified": 1673556008,
+        "narHash": "sha256-U6WUJnmTemKhMBjudGfNJihC3BM4wPujkB3rH5MSNC4=",
         "owner": "elsiehupp",
         "repo": "wikiteam3",
-        "rev": "98518297cc0ae09a58266b5acf6f040d99743d4d",
+        "rev": "022558308567fe1e478a8ff0887cfdbaaf4630fd",
         "type": "github"
       },
       "original": {
