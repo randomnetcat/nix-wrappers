@@ -24,20 +24,15 @@
           rm -r -- "$out/dist"
         '';
 
-        # I hate this so much. But I couldn't get just setting config.packagesDir for some reason
-        # and I don't care enough to dig into dream2nix to figure out why. So! Just create build
-        # a new directory that links to the correct lockfile based on the system we're building
-        # for. We have to do this because lxml resolves to a different file on different architectures.
-        # AAAAAAAAA it's 4:30am good night? morning? why
-        cleanPackage = pkgs.runCommandLocal "dream2nix-input" { ORIG_SOURCE = ./.; NIX_SYSTEM = system; } ''
-          mkdir -- "$out"
-          ln -sT -- "''${ORIG_SOURCE}/dream2nix-packages-''${NIX_SYSTEM}" "$out/dream2nix-packages"
-        '';
-
         underlying =
           (dream2nix.lib.makeFlakeOutputs {
             inherit systems;
-            config.projectRoot = cleanPackage;
+
+            # The lxml dependency resolves to a different file based on the architecture, so we have to have
+            # two different lockfiles. This dynamically selects the project folder based on the system we
+            # are building for.
+            config.projectRoot = ./system- + system;
+
             source = cleanSource;
             projects = ./projects.toml;
           });
