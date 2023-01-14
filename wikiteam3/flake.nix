@@ -1,8 +1,11 @@
 {
-  inputs.dream2nix = {
-    url = "github:nix-community/dream2nix";
+  inputs.flake-utils.url = "github:numtide/flake-utils";
+
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+  inputs.poetry2nix = {
+    url = "github:nix-community/poetry2nix";
     inputs.nixpkgs.follows = "nixpkgs";
-    inputs.nix-pypi-fetcher.url = "github:DavHau/nix-pypi-fetcher-2"; # Original version of the repo is outdated and no longer updated
   };
 
   inputs.wikiteam3 = {
@@ -10,39 +13,53 @@
     flake = false;
   };
 
-  outputs = { self, nixpkgs, flake-utils, dream2nix, wikiteam3 }: 
+  outputs = { self, nixpkgs, flake-utils, poetry2nix, wikiteam3 }: 
     let
-      lib = nixpkgs.lib;
-      systems = [ "x86_64-linux" "aarch64-linux" ];
+      appNames = [ "dumpgenerator" "launcher" "uploader" ];
     in
-    flake-utils.lib.eachSystem systems (system:
+    {
+      # Nixpkgs overlay providing the application
+      overlay = nixpkgs.lib.composeManyExtensions [
+        poetry2nix.overlay
+        (final: prev:
+          let
+            cleanSource = prev.runCommandLocal "wikiteam3-clean" { ORIG_SOURCE = wikiteam3; } ''
+              cp -rT --no-preserve=mode,ownership -- "$ORIG_SOURCE" "$out"
+              rm -r -- "$out/dist"
+            '';
+          in
+          {
+            # The application
+            dumpgenerator =
+              let
+                basePackage = prev.poetry2nix.mkPoetryApplication {
+                  projectDir = cleanSource;
+                  preferWheels = true;
+                };
+
+                wrappedPackage = prev.linkFarm "wikiteam3-wrapped" (
+                  map (app: {
+                    name = "bin/wikiteam-${app}";
+                    path = "${basePackage}/bin/${app}";
+                  }) appNames
+                );
+              in
+              wrappedPackage;
+          }
+        )
+      ];
+    } // (flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = nixpkgs.legacyPackages."${system}";
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ self.overlay ];
+        };
 
-        cleanSource = pkgs.runCommandLocal "wikiteam3-clean" { ORIG_SOURCE = wikiteam3; } ''
-          cp -rT --no-preserve=mode,ownership -- "$ORIG_SOURCE" "$out"
-          rm -r -- "$out/dist"
-        '';
-
-        underlying =
-          (dream2nix.lib.makeFlakeOutputs {
-            inherit systems;
-
-            # The lxml dependency resolves to a different file based on the architecture, so we have to have
-            # two different lockfiles. This dynamically selects the project folder based on the system we
-            # are building for.
-            config.projectRoot = ./system- + system;
-
-            source = cleanSource;
-            projects = ./projects.toml;
-          });
-        appNames = [ "dumpgenerator" "launcher" "uploader" ];
-        rawPackage = underlying.packages."${system}".default;
-        wrappedPackage = pkgs.linkFarm "wikiteam3-wrapped" (map (app: { name = "bin/wikiteam-${app}"; path = "${rawPackage}/bin/${app}"; }) appNames);
+        lib = nixpkgs.lib;
       in
       rec {
         packages = {
-          dumpgenerator = wrappedPackage;
+          dumpgenerator = pkgs.dumpgenerator;
           default = packages.dumpgenerator;
         };
 
@@ -55,11 +72,7 @@
           in
           base // {
             default = base.dumpgenerator;
-            dreamResolveImpure = {
-              type = "app";
-              program = "${underlying.packages."${system}".resolveImpure}/bin/resolve";
-            };
           };
       }
-   );
+   ));
 }
