@@ -22,18 +22,12 @@
       overlay = nixpkgs.lib.composeManyExtensions [
         poetry2nix.overlay
         (final: prev:
-          let
-            cleanSource = prev.runCommandLocal "wikiteam3-clean" { ORIG_SOURCE = wikiteam3; } ''
-              cp -rT --no-preserve=mode,ownership -- "$ORIG_SOURCE" "$out"
-              rm -r -- "$out/dist"
-            '';
-          in
           {
             # The application
             dumpgenerator =
               let
                 basePackage = prev.poetry2nix.mkPoetryApplication {
-                  projectDir = cleanSource;
+                  projectDir = wikiteam3;
                   preferWheels = true;
                 };
 
