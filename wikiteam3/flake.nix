@@ -22,7 +22,16 @@
               let
                 basePackage = final.poetry2nix.mkPoetryApplication {
                   projectDir = wikiteam3;
-                  preferWheels = true;
+
+                  overrides = final.poetry2nix.overrides.withDefaults (final: prev: {
+                    pre-commit-poetry-export = prev.pre-commit-poetry-export.overridePythonAttrs (old: {
+                      buildInputs = (old.buildInputs or []) ++ [final.poetry];
+                    });
+
+                    wikitools3 = prev.wikitools3.overridePythonAttrs (old: {
+                      buildInputs = (old.buildInputs or []) ++ [final.poetry];
+                    });
+                  });
                 };
 
                 wrappedPackage = prev.linkFarm "wikiteam3-wrapped" (
