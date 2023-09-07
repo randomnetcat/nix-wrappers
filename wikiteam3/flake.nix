@@ -3,30 +3,24 @@
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-  inputs.poetry2nix = {
-    url = "github:nix-community/poetry2nix";
-    inputs.nixpkgs.follows = "nixpkgs";
-  };
-
   inputs.wikiteam3 = {
     url = "github:elsiehupp/wikiteam3";
     flake = false;
   };
 
-  outputs = { self, nixpkgs, flake-utils, poetry2nix, wikiteam3 }: 
+  outputs = { self, nixpkgs, flake-utils, wikiteam3 }:
     let
       appNames = [ "dumpgenerator" "launcher" "uploader" ];
     in
     {
       # Nixpkgs overlay providing the application
       overlay = nixpkgs.lib.composeManyExtensions [
-        poetry2nix.overlay
         (final: prev:
           {
             # The application
             dumpgenerator =
               let
-                basePackage = prev.poetry2nix.mkPoetryApplication {
+                basePackage = final.poetry2nix.mkPoetryApplication {
                   projectDir = wikiteam3;
                   preferWheels = true;
                 };
