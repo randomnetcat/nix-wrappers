@@ -59,11 +59,11 @@
     "wikiteam3": {
       "flake": false,
       "locked": {
-        "lastModified": 1694193202,
-        "narHash": "sha256-X/QanjTriF/dt5OpRSdiSaevMtcDzehIuYnHj9G3W5U=",
+        "lastModified": 1695021643,
+        "narHash": "sha256-iLeevm6VjhpiVg7IIU+R3pHaazegepmuXtEWQVFbMn4=",
         "owner": "elsiehupp",
         "repo": "wikiteam3",
-        "rev": "38cf49dae070a151f31b3683c183dfeb2806842f",
+        "rev": "5d3b65ff275673e88f35a7136b104e10062b55a0",
         "type": "github"
       },
       "original": {
