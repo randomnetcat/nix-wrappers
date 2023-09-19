@@ -20,18 +20,55 @@
             # The application
             dumpgenerator =
               let
-                basePackage = final.poetry2nix.mkPoetryApplication {
-                  projectDir = wikiteam3;
+                pyPkgs = final.python3.pkgs;
 
-                  overrides = final.poetry2nix.overrides.withDefaults (final: prev: {
-                    pre-commit-poetry-export = prev.pre-commit-poetry-export.overridePythonAttrs (old: {
-                      buildInputs = (old.buildInputs or []) ++ [final.poetry];
-                    });
+                basePackage = pyPkgs.buildPythonApplication {
+                  name = "mediawiki-dump-generator";
+                  src = "${wikiteam3}";
+                  pyproject = true;
 
-                    wikitools3 = prev.wikitools3.overridePythonAttrs (old: {
-                      buildInputs = (old.buildInputs or []) ++ [final.poetry];
-                    });
-                  });
+                  buildInputs = [
+                    pyPkgs.poetry-core
+                  ];
+
+                  propagatedBuildInputs = [
+                    pyPkgs.requests
+                    pyPkgs.internetarchive
+                    pyPkgs.lxml
+                    pyPkgs.mwclient
+                    pyPkgs.pymysql
+                    pyPkgs.urllib3
+                    pyPkgs.file-read-backwards
+
+                    (pyPkgs.buildPythonPackage rec {
+                      pname = "wikitools3";
+                      version = "3.0.1";
+
+                      src = pyPkgs.fetchPypi {
+                        inherit pname version;
+                        sha256 = "tJPmgG+xmFrRrylMVjZK66bqZ6NmVTvBG2W39SedABI=";
+                      };
+
+                      doCheck = false;
+
+                      propagatedBuildInputs = [
+                        (pyPkgs.buildPythonPackage rec {
+                          pname = "poster3";
+                          version = "0.8.1";
+                          format = "wheel";
+
+                          src = pyPkgs.fetchPypi {
+                            inherit pname version format;
+                            sha256 = "GyfX1j4xkeXXI4Yx/IKORJNZDpTc6gNOOGwHnYU8zhQ=";
+                            dist = "py3";
+                            python = "py3";
+                          };
+
+                          doCheck = false;
+                        })
+                      ];
+                    })
+                  ];
                 };
 
                 wrappedPackage = prev.linkFarm "wikiteam3-wrapped" (
