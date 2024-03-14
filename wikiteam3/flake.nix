@@ -32,11 +32,21 @@
 
             # Prevent poetry2nix from getting into an infinite loop.
             #
-            # poetry2nix tries to clean the source by removing all .gitignored files. In order to do this, it attempts to traverse the filesystem until it either (a) finds a .git directory or (b) reaches /. HOWEVER, because we're passing it a store path as a string, when it attempts to append "/.." to go up a directory, it instead just appends that literally. So, it gets stuck in an infinite loop considering "/nix/foo-source", "/nix/foo-source/..", "/nix/foo-source/../..", etc. This results in a stack overflow, because of course it does.
+            # poetry2nix tries to clean the source by removing all .gitignored
+            # files. In order to do this, it attempts to traverse the
+            # filesystem until it either (a) finds a .git directory or (b)
+            # reaches /. HOWEVER, because we're passing it a store path as a
+            # string, when it attempts to append "/.." to go up a directory, it
+            # instead just appends that literally. So, it gets stuck in an
+            # infinite loop considering "/nix/foo-source",
+            # "/nix/foo-source/..", "/nix/foo-source/../..", etc. This results
+            # in a stack overflow, because of course it does.
             #
-            # Passing src forces this directory to be used as the final src, rather than cleaning.
+            # Passing src forces this directory to be used as the final src,
+            # rather than cleaning.
             #
-            # Fuck you, poetry2nix. I've been able to coerce you into working, but you've given me problems every step of the way.
+            # Fuck you, poetry2nix. I've been able to coerce you into working,
+            # but you've given me problems every step of the way.
             src = "${wikiteam3}";
 
             overrides = instance.overrides.withDefaults (final: prev: {
