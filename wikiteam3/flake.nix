@@ -54,6 +54,12 @@
                 preferWheel = true;
               };
 
+              # PyYAML apparently has a build issue: https://github.com/yaml/pyyaml/issues/601
+              # Use the pre-built wheel to work around this.
+              pyyaml = prev.pyyaml.override {
+                preferWheel = true;
+              };
+
               wikitools3 = prev.wikitools3.overridePythonAttrs (old: {
                 buildInputs = (old.buildInputs or []) ++ [final.poetry];
               });
