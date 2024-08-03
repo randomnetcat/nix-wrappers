@@ -60,6 +60,12 @@
                 preferWheel = true;
               };
 
+              # lxml refuses to build for some reason (as of writing)?
+              # Dirty hack: use the wheel instead so we don't have to build it.
+              lxml = prev.lxml.override {
+                preferWheel = true;
+              };
+
               wikitools3 = prev.wikitools3.overridePythonAttrs (old: {
                 buildInputs = (old.buildInputs or []) ++ [final.poetry];
               });
