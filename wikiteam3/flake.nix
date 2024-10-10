@@ -69,6 +69,13 @@
               wikitools3 = prev.wikitools3.overridePythonAttrs (old: {
                 buildInputs = (old.buildInputs or []) ++ [final.poetry];
               });
+
+              pytest-runner = pkgs.emptyDirectory;
+
+              # Bypass needing to build, which wants pytest-runner.
+              mccabe = prev.mccabe.override {
+                preferWheel = true;
+              };
             });
           };
 
