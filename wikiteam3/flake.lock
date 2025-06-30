@@ -174,11 +174,11 @@
     "wikiteam3": {
       "flake": false,
       "locked": {
-        "lastModified": 1751193349,
-        "narHash": "sha256-PGqXWtYJeXnnkbj0PUEvVf2+uvJqS9SzvIghLRywKJ4=",
+        "lastModified": 1751245644,
+        "narHash": "sha256-u8VOKt8vegW3w5i7UAAiXpPa4cwMAaiCdGoaYtQVjNc=",
         "owner": "mediawiki-client-tools",
         "repo": "mediawiki-dump-generator",
-        "rev": "5eaec75f77461168bd3e919408d75599b21c9632",
+        "rev": "8c77740796183716de9ffa352c926ee73984fb0d",
         "type": "github"
       },
       "original": {
