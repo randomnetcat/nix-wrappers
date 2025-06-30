@@ -59,11 +59,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1750506804,
-        "narHash": "sha256-VLFNc4egNjovYVxDGyBYTrvVCgDYgENp5bVi9fPTDYc=",
+        "lastModified": 1751011381,
+        "narHash": "sha256-krGXKxvkBhnrSC/kGBmg5MyupUUT5R6IBCLEzx9jhMM=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "4206c4cb56751df534751b058295ea61357bbbaa",
+        "rev": "30e2e2857ba47844aa71991daa6ed1fc678bcbb7",
         "type": "github"
       },
       "original": {
@@ -174,11 +174,11 @@
     "wikiteam3": {
       "flake": false,
       "locked": {
-        "lastModified": 1727131590,
-        "narHash": "sha256-X3HPS41jITR75MVsX1tBXbrg95YV5bqOxpqsHsrek2o=",
+        "lastModified": 1751193349,
+        "narHash": "sha256-PGqXWtYJeXnnkbj0PUEvVf2+uvJqS9SzvIghLRywKJ4=",
         "owner": "mediawiki-client-tools",
         "repo": "mediawiki-dump-generator",
-        "rev": "fb18862180c211fc81bfdde61e6e3f4a999f3dd0",
+        "rev": "5eaec75f77461168bd3e919408d75599b21c9632",
         "type": "github"
       },
       "original": {
