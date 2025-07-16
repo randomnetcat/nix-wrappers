@@ -5,84 +5,79 @@
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    poetry2nix = {
-      url = "github:nix-community/poetry2nix";
+    wikiteam3 = {
+      url = "github:mediawiki-client-tools/mediawiki-dump-generator/uv";
+      flake = false;
+    };
+
+    pyproject-nix = {
+      url = "github:pyproject-nix/pyproject.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    wikiteam3 = {
-      url = "github:mediawiki-client-tools/mediawiki-dump-generator";
-      flake = false;
+    uv2nix = {
+      url = "github:pyproject-nix/uv2nix";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    pyproject-build-systems = {
+      url = "github:pyproject-nix/build-system-pkgs";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.uv2nix.follows = "uv2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, poetry2nix, wikiteam3 }:
+  outputs = { self, nixpkgs, flake-utils, wikiteam3, pyproject-nix, uv2nix, pyproject-build-systems }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        # see https://github.com/nix-community/poetry2nix/tree/master#api for more functions and examples.
-        pkgs = nixpkgs.legacyPackages.${system};
-        instance = poetry2nix.lib.mkPoetry2Nix { inherit pkgs; };
-        inherit (instance) mkPoetryApplication;
         appNames = [ "dumpgenerator" "launcher" "uploader" ];
+
+        pkgs = nixpkgs.legacyPackages.${system};
+        inherit (pkgs) lib;
+
+        python = pkgs.python3;
+
+        workspace = uv2nix.lib.workspace.loadWorkspace {
+          workspaceRoot = "${wikiteam3}";
+        };
+
+        projectOverlay = workspace.mkPyprojectOverlay {
+          sourcePreference = "wheel";
+        };
+
+        buildSystemOverlay = final: prev:
+          let
+            inherit (final) resolveBuildSystem;
+
+            buildSystemOverrides = {
+              docopt.setuptools = [ ];
+              pywikibot.setuptools = [ ];
+            };
+          in
+          lib.mapAttrs
+            (name: spec: prev.${name}.overrideAttrs (old: {
+              nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ (resolveBuildSystem spec);
+            }))
+            buildSystemOverrides;
+
+        pythonSet = (pkgs.callPackage pyproject-nix.build.packages { inherit python; }).overrideScope (
+          lib.composeManyExtensions [
+            pyproject-build-systems.overlays.default
+            projectOverlay
+            buildSystemOverlay
+          ]
+        );
       in
       {
         packages = {
-          unwrapped = mkPoetryApplication {
-            projectDir = "${wikiteam3}";
-
-            # Prevent poetry2nix from getting into an infinite loop.
-            #
-            # poetry2nix tries to clean the source by removing all .gitignored
-            # files. In order to do this, it attempts to traverse the
-            # filesystem until it either (a) finds a .git directory or (b)
-            # reaches /. HOWEVER, because we're passing it a store path as a
-            # string, when it attempts to append "/.." to go up a directory, it
-            # instead just appends that literally. So, it gets stuck in an
-            # infinite loop considering "/nix/foo-source",
-            # "/nix/foo-source/..", "/nix/foo-source/../..", etc. This results
-            # in a stack overflow, because of course it does.
-            #
-            # Passing src forces this directory to be used as the final src,
-            # rather than cleaning.
-            #
-            # Fuck you, poetry2nix. I've been able to coerce you into working,
-            # but you've given me problems every step of the way.
-            src = "${wikiteam3}";
-
-            overrides = instance.overrides.withDefaults (final: prev: {
-              pre-commit-poetry-export = prev.pre-commit-poetry-export.override {
-                preferWheel = true;
-              };
-
-              # PyYAML apparently has a build issue: https://github.com/yaml/pyyaml/issues/601
-              # Use the pre-built wheel to work around this.
-              pyyaml = prev.pyyaml.override {
-                preferWheel = true;
-              };
-
-              # lxml refuses to build for some reason (as of writing)?
-              # Dirty hack: use the wheel instead so we don't have to build it.
-              lxml = prev.lxml.override {
-                preferWheel = true;
-              };
-
-              wikitools3 = prev.wikitools3.overridePythonAttrs (old: {
-                buildInputs = (old.buildInputs or []) ++ [final.poetry];
-              });
-
-              pytest-runner = pkgs.emptyDirectory;
-
-              # Bypass needing to build, which wants pytest-runner.
-              mccabe = prev.mccabe.override {
-                preferWheel = true;
-              };
-            });
-          };
+          virtualEnv = pythonSet.mkVirtualEnv "wikiteam3-env" workspace.deps.default;
 
           dumpgenerator = nixpkgs.legacyPackages.${system}.linkFarm "wikiteam3-wrapped" (
             map (app: {
               name = "bin/wikiteam-${app}";
-              path = "${self.packages.${system}.unwrapped}/bin/${app}";
+              path = "${self.packages.${system}.virtualEnv}/bin/${app}";
             }) appNames
           );
 
@@ -94,11 +89,6 @@
           program = "${self.packages.${system}.dumpgenerator}/bin/wikiteam-${app}";
         }) // {
           default = self.apps.${system}.dumpgenerator;
-        };
-
-        devShells.default = pkgs.mkShell {
-          inputsFrom = [ self.packages.${system}.dumpgenerator ];
-          packages = [ pkgs.poetry ];
         };
       });
 }
